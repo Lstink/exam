@@ -17,6 +17,11 @@ use Illuminate\Http\Request;
 //     return $request->user();
 // });
 
-Route::post('token','API\\LoginController@checkLogin');
+Route::post('login','API\LoginController@checkLogin')->middleware('apiSign');
 
-Route::apiResource('user','API\\ResponseController')->middleware('auth:api');
+Route::any('unAuth',function(){
+    return response() -> json(['message'=>'api_token invalid'],204);
+})->name('unAuth');
+
+Route::apiResource('user','API\ResponseController')->middleware('auth:api');
+

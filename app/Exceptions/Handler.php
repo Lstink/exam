@@ -44,8 +44,41 @@ class Handler extends ExceptionHandler
      * @param  \Exception  $exception
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $exception)
+    // public function render($request, Exception $exception)
+    // {
+    //     //如果$exception 是 ApiException的一个实例，则自定义返回的错误信息
+    //     if($exception instanceof ApiException){
+    //         $result = [
+    //             "msg"=>$exception->getMessage(),
+    //             "data"=>""
+    //         ];
+    //         return response()->json($result,422);
+    //     }
+    //     //如果不是，则使用 父类的处理方法
+
+    //     return parent::render($request, $exception);
+    // }
+    public function render($request, Exception $e)
     {
-        return parent::render($request, $exception);
+
+        if (config('app.debug')) {
+            return parent::render($request, $e);
+        }
+        return $this->handle($request, $e);
     }
+
+    public function handle($request, Exception $e)
+    {
+        if ($e instanceof ApiException) {
+            $result = [
+                "msg" => "",
+                "data" => $e->getMessage(),
+                "status" => 0
+            ];
+            return response()->json($result);
+        }
+
+        return parent::render($request, $e);
+    }
+
 }

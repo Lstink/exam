@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\models\Admin;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 
 class ResponseController extends Controller
 {
@@ -40,6 +41,14 @@ class ResponseController extends Controller
      */
     public function store(Request $request)
     {
+        //验证数据
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|unique:posts|max:255',
+            'password' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response() -> json(['message'=>'data error'],407);
+        }
         $data = request() -> all();
         //给密码加密
         $data['password'] = Hash::make($data['password']);
@@ -55,8 +64,6 @@ class ResponseController extends Controller
         } catch (\Throwable $th) {
             return response() -> json(['message'=>$th -> getMessage()],500);
         }
-        
-        
         
     }
 

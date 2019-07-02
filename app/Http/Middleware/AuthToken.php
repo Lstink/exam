@@ -3,6 +3,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Auth;
 
 class AuthToken
 {
@@ -15,19 +17,32 @@ class AuthToken
      */
     public function handle($request, Closure $next)
     {
-        $nonceStr = $request -> nonceStr;
-        $signature = $request -> signature;
-        $timestamps = $request -> timestamps;
+        //验证签名
+        $data = request() -> except('signature','api_token');
+        //解密
+        foreach ($data as $key => $value) {
+            $data[$key] = decryptCBC($value);
+        }
+        // dd($data);
+        if (empty($data)) {
+            return response() -> json(['message'=>'api_token invalid'],500);
+        }
+        $user = md5(Auth::user());
+        $api_token = Redis::get('user_'.$user);
+        if ($api_token != request('api_token')) {
+            return response() -> json(['message'=>'api_token invalid'],500);
+        }
+        $signature = request() -> signature;
         $apiKey = env('APIKEY');
+        $data['key'] = $apiKey;
         //字典排序
-        $arr = [$nonceStr,$timestamps,$apiKey];
-        sort($arr,SORT_STRING);
-        $sign = sha1(implode($arr));
-        echo $sign;
-        dump($signature);
+        sort($data,SORT_STRING);
+        $sign = sha1(implode($data));
+        // dd($sign);
         if ($sign !== $signature) {
             return response() -> json(['message'=>'signature invalid'],400);
         }
+        // echo 5;
         return $next($request);
     }
 }
