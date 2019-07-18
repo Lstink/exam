@@ -30,3 +30,9 @@ Route::get('register',function(){
 Route::post('sendCode','API\RegisterController@sendCode')->name('sendCode');
 //模拟解密
 Route::get('openEncrypt','API\EncryptController@openEncrypt');
+//商品分类的接口
+Route::post('category/getCategory','API\CategoryController@getCategory');
+
+Route::get('demo',function(){
+    echo('123456'),('44444');
+});

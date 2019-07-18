@@ -23,7 +23,7 @@ class LoginController extends Controller
             request()->user()->forceFill([
                 'api_token' => hash('sha256',$token),
             ])->save();
-            //获取认证对象，ｍｄ５加密存入redis
+            //获取认证对象，md5加密存入redis
             $user = md5(Auth::user());
             Redis::setex('user_'.$user,7200,$token);
             return response() -> json(['token'=>$token],200);

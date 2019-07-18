@@ -53,6 +53,7 @@ class ResponseController extends Controller
         //给密码加密
         $data['password'] = Hash::make($data['password']);
         //产生一个随机的token
+        
         $data['api_token'] = Str::random(60);
         try {
             $res = Admin::create($data);
